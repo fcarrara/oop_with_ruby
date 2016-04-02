@@ -1,43 +1,66 @@
-require './peg'
 require './board'
+require './string'
 
 class Mastermind
 
   COLORS = { 1 => :red, 2 => :green, 3 => :yellow, 4 => :blue, 5 => :pink, 6 => :cyan, 7 => :white }
 
-  def initialize(board)
+  def initialize(board,human_codemaker)
     @board = board
     @current_row = -1
+    @human_codemaker = human_codemaker
+    @black_matches = {}
+    @white_matches = []
+  end
+
+  def human_codemaker?
+    @human_codemaker
   end
 
   def play
     generate_pattern
-    print_pattern
     
     while !game_over?
       print_board
 
-      puts "Please choose up to #{@board.holes} colors from 1 to #{@board.number_of_pegs} comma separated (eg. 1,2,3):"
-      1.upto(@board.number_of_pegs) { |i| print "#{i} = " + "  ".color(COLORS[i]) + "  " }
-      print ": "
-      input = gets.chomp
-      
-      while !input_valid?(input)
-        print "Your input is invalid. Please try again! (eg. 1,2,3): "
-        input = gets.chomp
+      if human_codemaker?
+        computer_play
+      else
+        puts "Please choose up to #{@board.holes} colors from 1 to #{@board.number_of_pegs} separated by comma (eg. 1,2,3):"
+        print_colors
+        
+        input_colors = get_and_validate_input
+        input_colors.each_with_index { |i,index| input_colors[index] = COLORS[i] }
+
+        @board.decoding_board[@current_row] = input_colors
       end
-
-      color = input.split(",").map(&:to_i)
-      color.each_with_index { |i,index| color[index] = COLORS[i] }
-
-      @board.decoding_board[@current_row] = color
     end
+    puts ""
+    print_pattern
+    puts ""
+  end
+
+  def get_and_validate_input
+    input = gets.chomp
+
+    while !input_valid?(input)
+      print "Your input is invalid. Please try again! (eg. 1,2,3): "
+      input = gets.chomp
+    end
+
+    input.split(",").map(&:to_i)
   end
 
   def generate_pattern
-    @board.holes.times do |i|
-      code_peg = COLORS[rand(1..@board.number_of_pegs)]
-      @board.pattern[i] = code_peg
+    if human_codemaker?
+      puts "Please enter #{@board.holes} colors separated by comma (eg. 1,2,3): "
+      print_colors
+      input_colors = get_and_validate_input
+      @board.holes.times  { |i| @board.pattern[i] = COLORS[input_colors[i]] }
+      system "clear" or system "cls"
+      system "clear" or system "cls"
+    else
+      @board.holes.times { |i| @board.pattern[i] = COLORS[rand(1..@board.number_of_pegs)] }
     end
     @board.pattern
   end
@@ -45,8 +68,10 @@ class Mastermind
   def print_pattern
     print "The pattern is: "
     @board.pattern.each { |val| print "  ".color(val) + " "}
+    puts ""
   end
 
+  # Print the main decoding board and feedback board on the screen
   def print_board
     puts ""
     line = "        " + "----" * @board.holes
@@ -73,11 +98,16 @@ class Mastermind
     puts ""
   end
 
+  # Print the available colors on the screen
+  def print_colors
+    1.upto(@board.number_of_pegs) { |i| print "#{i} = " + "  ".color(COLORS[i]) + "  " }
+      print ": "
+  end
+
   def game_over?
     if @board.decoding_board[@current_row] == @board.pattern
       print_board
       puts "Game Over. You win! :D"
-      print_pattern
       return true
     elsif @current_row == @board.rows - 1
       print_board
@@ -90,6 +120,7 @@ class Mastermind
     end
   end
 
+  # Validate that the combination of colors selected is correct
   def input_valid?(input)
     begin
       input_arr = input.split(",").map(&:to_i)
@@ -106,12 +137,15 @@ class Mastermind
   def provide_feedback
     # Copy the array to a temp variable using dup method
     temp = @board.pattern.dup
+    @black_matches = {}
+    @white_matches = []
 
     # Check first same color at same position (black)
     @board.decoding_board[@current_row].each_with_index do |i,index|
       if @board.pattern[index] == i
         temp[index] = 0
         @board.feedback_board[@current_row] << "B"
+        @black_matches[index] = i
       end
     end
 
@@ -121,64 +155,41 @@ class Mastermind
         if temp.include?(i)
           @board.feedback_board[@current_row] << "W"
           temp.delete_at(temp.index(i))
+          @white_matches << i
         end
       end
     end
   end
-end
 
-# Extending String class to print string 
-# in different background colors
-class String
+  # Computer AI
+  def computer_play
 
-  def colorize(color)
-    "\e[#{color}m#{self}\e[0m"
-  end
+    # Any black feedback from previous guess?
+    if @black_matches.size > 0
+      @black_matches.each do |key,value|
+        @board.decoding_board[@current_row][key] = value
+      end
+    end
+   
+    # Any white feedback from previous guess?
+    if @white_matches.size > 0
+      # Assign the colors to a temporary list 
+      temp = @white_matches.dup
+      @white_matches.size.times do |i|
+        color = temp[rand(temp.size)]
+        #First nil from board we assign a random color found in previous guess
+        @board.decoding_board[@current_row][@board.decoding_board[@current_row].index(nil)] = color
+        # Delete the color from the temporary list to avoid assigning it again
+        temp.slice!(temp.index(color))
+      end
+    end
 
-  def color(color)
-    case color
-    when :red
-      colorize(41)
-    when :green
-      colorize(42)
-    when :yellow
-      colorize(43)
-    when :blue
-      colorize(44)
-    when :pink
-      colorize(45)
-    when :cyan
-      colorize(46)
-    when :white
-      colorize(47)
-    else
-      colorize(30)
+    # Complete the rest with random colors
+    @board.holes.times do |i| 
+      if @board.decoding_board[@current_row][i].nil? 
+        @board.decoding_board[@current_row][i] = COLORS[rand(1..@board.number_of_pegs)]
+      end 
     end
   end
 
 end
-
-#outputs color table to console, regular and bold modes
-def colortable
-  names = %w(black red green yellow blue pink cyan white default)
-  fgcodes = (30..39).to_a - [38]
-
-  s = ''
-  reg  = "\e[%d;%dm%s\e[0m"
-  bold = "\e[1;%d;%dm%s\e[0m"
-  puts '                       color table with these background codes:'
-  puts '          40       41       42       43       44       45       46       47       49'
-  names.zip(fgcodes).each {|name,fg|
-    s = "#{fg}"
-    puts "%7s "%name + "#{reg}  #{bold}   "*9 % [fg,40,s,fg,40,s,  fg,41,s,fg,41,s,  fg,42,s,fg,42,s,  fg,43,s,fg,43,s,  
-      fg,44,s,fg,44,s,  fg,45,s,fg,45,s,  fg,46,s,fg,46,s,  fg,47,s,fg,47,s,  fg,49,s,fg,49,s ]
-  }
-end
-
-print "Please select difficulty (1 - Easy, 2 - Medium, 3 - Hard): "
-difficulty = gets.chomp
-board = Board.new(difficulty)
-game = Mastermind.new(board)
-game.play
-
-# colortable

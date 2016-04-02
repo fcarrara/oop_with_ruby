@@ -1,6 +1,7 @@
 class Board
 
-  attr_reader :number_of_pegs, :pattern, :decoding_board, :feedback_board, :holes, :rows
+  attr_reader :number_of_pegs, :decoding_board, :feedback_board, :holes, :rows
+  attr_accessor :pattern
 
   def initialize(difficulty)
     case difficulty.to_i

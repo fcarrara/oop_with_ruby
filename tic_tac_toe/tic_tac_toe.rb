@@ -1,3 +1,5 @@
+require './player'
+
 class TicTacToe
 
   WIN_CASES = [[0,1,2],[3,4,5],[6,7,8],[0,4,8],
@@ -12,6 +14,7 @@ class TicTacToe
   end
 
   def play  
+    puts ""
     puts "Game on!"
     puts ""
 
@@ -40,16 +43,18 @@ class TicTacToe
 
   def print_board
     puts ""
-    puts "| #{@board[0]} | #{@board[1]} | #{@board[2]} |"
-    puts "-------------"
-    puts "| #{@board[3]} | #{@board[4]} | #{@board[5]} |"
-    puts "-------------"
-    puts "| #{@board[6]} | #{@board[7]} | #{@board[8]} |"
+    puts "    Tic Tac Toe!"
+    puts ""
+    puts "     |" + "  ".color(@board[0]) + "|" + "  ".color(@board[1]) + "|" + "  ".color(@board[2]) + "|"
+    puts "     ----------"
+    puts "     |" + "  ".color(@board[3]) + "|" + "  ".color(@board[4]) + "|" + "  ".color(@board[5]) + "|"
+    puts "     ----------"
+    puts "     |" + "  ".color(@board[6]) + "|" + "  ".color(@board[7]) + "|" + "  ".color(@board[8]) + "|"
     puts ""
   end
 
   def update_board(option)
-    @board[option - 1] = @current_player.symbol
+    @board[option - 1] = @current_player.color
   end
 
   def print_available_options
@@ -65,7 +70,7 @@ class TicTacToe
   def win_game?
     return if @current_player == ""
     WIN_CASES.each do |i|
-      if [@board[i[0]],@board[i[1]],@board[i[2]]].all? { |i| i == @current_player.symbol }
+      if [@board[i[0]],@board[i[1]],@board[i[2]]].all? { |i| i == @current_player.color }
         return true
       end
     end
@@ -77,34 +82,3 @@ class TicTacToe
   end
   
 end
-
-# Player with 2 attributes
-class Player
-
-  attr_reader :name, :symbol
-
-  def initialize(name, symbol)
-    @name = name
-    @symbol = symbol
-  end
-
-end
-
-
-puts "Welcome to Tic Tac Toe!"
-puts ""
-print "Insert player 1 name: "
-player1_name = gets.chomp
-print "Insert player 1 symbol: "
-player1_symbol = gets.chomp
-puts ""
-print "Insert player 2 name: "
-player2_name = gets.chomp
-print "Insert player 2 symbol: "
-player2_symbol = gets.chomp
-
-player1 = Player.new(player1_name, player1_symbol)
-player2 = Player.new(player2_name, player2_symbol)
-
-game = TicTacToe.new(player1, player2)
-game.play
