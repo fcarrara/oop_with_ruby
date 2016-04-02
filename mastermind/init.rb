@@ -1,5 +1,5 @@
 require './board'
-require './mastermind2.rb'
+require './mastermind.rb'
 
 puts ""
 puts "*******   Welcome to MasterMind!   *******"

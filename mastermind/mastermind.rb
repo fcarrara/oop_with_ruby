@@ -28,13 +28,15 @@ class Mastermind
     puts ""
   end
 
-  def game_over?
-    if @codebreaker.game_over?
-      true
-    else
-      @codemaker.provide_feedback
-      false
+  private 
+  
+    def game_over?
+      if @codebreaker.game_over?
+        true
+      else
+        @codemaker.provide_feedback
+        false
+      end
     end
-  end
- 
+   
 end

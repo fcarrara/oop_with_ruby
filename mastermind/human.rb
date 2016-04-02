@@ -19,35 +19,37 @@ class Human < Codemaker
     @board.decoding_board[@@current_row] = input_colors
   end
 
-  # Print the available colors on the screen
-  def print_colors
-    1.upto(@board.number_of_pegs) { |i| print "#{i} = " + "  ".color(COLORS[i]) + "  " }
-      print ": "
-  end
+  private 
+  
+    # Print the available colors on the screen
+    def print_colors
+      1.upto(@board.number_of_pegs) { |i| print "#{i} = " + "  ".color(COLORS[i]) + "  " }
+        print ": "
+    end
 
-  def get_and_validate_input
-    input = gets.chomp
-
-    while !input_valid?(input)
-      print "Your input is invalid. Please try again! (eg. 1,2,3): "
+    def get_and_validate_input
       input = gets.chomp
-    end
 
-    input.split(",").map(&:to_i)
-  end
-
-  # Validate that the combination of colors selected is correct
-  def input_valid?(input)
-    begin
-      input_arr = input.split(",").map(&:to_i)
-      if input_arr.size > @board.holes || !input_arr.all? { |i| i <= @board.number_of_pegs }
-        return false
-      else
-        return true
+      while !input_valid?(input)
+        print "Your input is invalid. Please try again! (eg. 1,2,3): "
+        input = gets.chomp
       end
-    rescue
-      return false
+
+      input.split(",").map(&:to_i)
     end
-  end
+
+    # Validate that the combination of colors selected is correct
+    def input_valid?(input)
+      begin
+        input_arr = input.split(",").map(&:to_i)
+        if input_arr.size > @board.holes || !input_arr.all? { |i| i <= @board.number_of_pegs }
+          return false
+        else
+          return true
+        end
+      rescue
+        return false
+      end
+    end
 
 end

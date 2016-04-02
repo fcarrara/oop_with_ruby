@@ -38,7 +38,6 @@ class Codemaker
       end
     end
     @@current_row += 1
-    puts "CURRENT ROW = #{@@current_row}"
   end
 
   def print_pattern
