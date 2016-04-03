@@ -49,6 +49,10 @@ class Codemaker
   # Print the main decoding board and feedback board on the screen
   def print_board
     puts ""
+    puts " |B| (black) = right color, right space"
+    puts " |W| (white) = right color, wrong space"
+    puts ""
+    puts ""
     line = "        " + "----" * @board.holes
     puts line
     board_size = @board.decoding_board.size - 1
@@ -57,11 +61,7 @@ class Codemaker
       print "%7s "%"#{i+1}. "
 
       @board.holes.times do |j|
-        if j.nil?
-          print "|  |" 
-        else
-          print "|" + "  ".color(@board.decoding_board[i][j]) + "|" 
-        end
+        print j.nil? ? "|  |" : "|" + "  ".color(@board.decoding_board[i][j]) + "|" 
       end
       print "  "  
 

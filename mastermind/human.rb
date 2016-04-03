@@ -5,6 +5,8 @@ class Human < Codemaker
     print_colors
     input_colors = get_and_validate_input
     @board.holes.times  { |i| @board.pattern[i] = COLORS[input_colors[i]] }
+    
+    # Clean the screen to hide the pattern
     system "clear" or system "cls"
     system "clear" or system "cls"
   end
@@ -15,7 +17,6 @@ class Human < Codemaker
     
     input_colors = get_and_validate_input
     input_colors.each_with_index { |i,index| input_colors[index] = COLORS[i] }
-    print "current row in human = #{@@current_row}"
     @board.decoding_board[@@current_row] = input_colors
   end
 
