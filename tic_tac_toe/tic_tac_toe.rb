@@ -1,9 +1,10 @@
 require './player'
+require './string'
 
 class TicTacToe
 
   WIN_CASES = [[0,1,2],[3,4,5],[6,7,8],[0,4,8],
-               [2,4,6],[0,3,6],[1,4,7],[2,6,8]]
+               [2,4,6],[0,3,6],[1,4,7],[2,5,8]]
 
   def initialize(player1, player2)
     @player1 = player1
@@ -34,11 +35,10 @@ class TicTacToe
         update_board(option.to_i)
         print_board
       else
-        puts "Game over. It'a a tie!"
-        return
+        return "Game over. It'a a tie!"
       end
     end
-    puts "Game over. #{@current_player.name} wins!"
+    return "Game over. #{@current_player.name} wins!"
   end
 
   def print_board

@@ -34,4 +34,4 @@ player1 = Player.new(player1_name, COLORS[player1_color.to_i])
 player2 = Player.new(player2_name, COLORS[player2_color.to_i])
 
 game = TicTacToe.new(player1, player2)
-game.play
+puts game.play
